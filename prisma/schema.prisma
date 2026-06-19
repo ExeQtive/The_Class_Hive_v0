@@ -1,0 +1,168 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String    @id @default(cuid())
+  name               String?
+  email              String    @unique
+  emailVerified      DateTime?
+  image              String?
+  password           String?
+  role               String    @default("teacher") // Added role field
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  
+  // Subscription related fields
+  stripeCustomerId       String?   @unique // Added @unique
+  stripeSubscriptionId   String?   @unique // Added @unique
+  subscriptionStatus     String?   // "active", "canceled", "past_due", etc.
+  subscriptionPlan       String?   @default("free") // Added default
+  subscriptionPeriodEnd  DateTime?
+  trialEndsAt            DateTime?
+  isLifetimeMember       Boolean   @default(false)
+  aiCreditsRemaining     Int       @default(15) // Default 15 credits for trial
+  
+  // Relations
+  accounts         Account[]
+  sessions         Session[]
+  lessons          Lesson[]
+  students         Student[]
+  tasks            Task[]
+  resources        Resource[]
+  aiUsageLogs      AIUsageLog[]
+  
+  @@index([email])
+  @@index([stripeCustomerId])
+  @@index([stripeSubscriptionId])
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?  @db.Text
+  access_token       String?  @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?  @db.Text
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Lesson {
+  id          String   @id @default(cuid())
+  title       String
+  subject     String
+  grade       String
+  duration    String
+  date        DateTime
+  status      String   // "published" or "draft"
+  objectives  String[]
+  materials   String[]
+  standards   String[]
+  content     String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      String
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Student {
+  id             String   @id @default(cuid())
+  firstName      String
+  lastName       String
+  gender         String?
+  grade          String
+  section        String?
+  dateOfBirth    DateTime?
+  guardianName   String?
+  guardianEmail  String?
+  guardianPhone  String?
+  address        String?
+  allergies      String?
+  emergencyContact String?
+  notes          String?
+  avatar         String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  userId         String
+  
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Task {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  dueDate     DateTime
+  priority    String   // "high", "medium", "low"
+  status      String   // "todo", "in-progress", "completed"
+  category    String
+  assignedTo  String?
+  relatedTo   String?
+  completedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      String
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Resource {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  type        String   // "document", "video", "link", etc.
+  url         String?
+  fileKey     String?
+  fileSize    Int?
+  category    String?
+  tags        String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      String
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AIUsageLog {
+  id          String   @id @default(cuid())
+  userId      String
+  promptType  String
+  tokensUsed  Int
+  createdAt   DateTime @default(now())
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
