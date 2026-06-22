@@ -1,5 +1,6 @@
 import dynamic from "next/dynamic"
 import { Suspense } from "react"
+import { DemoBanner } from "@/components/demo-banner"
 
 // Create a loading skeleton component
 function LoadingSkeleton() {
@@ -26,7 +27,7 @@ const DashboardPage = dynamic(() => import("../components/dashboard-page").then(
 export default function Home() {
   return (
     <>
-      <title>TeachFlow</title>
+      <DemoBanner />
       <Suspense fallback={<LoadingSkeleton />}>
         <DashboardPage />
       </Suspense>
