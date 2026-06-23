@@ -704,7 +704,7 @@ export function DashboardPage() {
               className="rounded-full border-teal-200 text-teal-700 hover:bg-teal-50 dark:border-teal-800 dark:text-teal-400 dark:hover:bg-teal-900/50"
             >
               <Sparkles className="h-4 w-4 mr-1 text-amber-500 dark:text-amber-400" />
-              <Link href="/pricing">Upgrade</Link>
+              <Link href="/request-early-access">Upgrade</Link>
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

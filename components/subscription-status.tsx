@@ -80,7 +80,7 @@ export function SubscriptionStatus() {
 
           {!isLifetimeMember && (
             <Button variant="outline" size="sm" asChild>
-              <Link href="/pricing">{isActive ? "Change Plan" : "Upgrade"}</Link>
+              <Link href="/request-early-access">{isActive ? "Change Plan" : "Upgrade"}</Link>
             </Button>
           )}
         </div>
@@ -99,7 +99,7 @@ export function SubscriptionStatus() {
       {!isLifetimeMember && !isActive && (
         <CardFooter>
           <Button className="w-full" asChild>
-            <Link href="/pricing">{isTrialing ? "Subscribe Now" : "Reactivate Subscription"}</Link>
+            <Link href="/request-early-access">{isTrialing ? "Subscribe Now" : "Reactivate Subscription"}</Link>
           </Button>
         </CardFooter>
       )}

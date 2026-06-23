@@ -398,7 +398,7 @@ export function AIAssistantPage() {
                 </Badge>
                 <span>Unlimited AI Credits</span>
               </div>
-              <Button variant="outline" size="sm" onClick={() => (window.location.href = "/pricing")}>
+              <Button variant="outline" size="sm" onClick={() => (window.location.href = "/request-early-access")}>
                 Upgrade
               </Button>
             </div>
@@ -409,7 +409,7 @@ export function AIAssistantPage() {
                 </Badge>
                 <span>Student-specific Differentiation Strategies</span>
               </div>
-              <Button variant="outline" size="sm" onClick={() => (window.location.href = "/pricing")}>
+              <Button variant="outline" size="sm" onClick={() => (window.location.href = "/request-early-access")}>
                 Upgrade
               </Button>
             </div>
@@ -420,7 +420,7 @@ export function AIAssistantPage() {
                 </Badge>
                 <span>Custom Assessment Creation</span>
               </div>
-              <Button variant="outline" size="sm" onClick={() => (window.location.href = "/pricing")}>
+              <Button variant="outline" size="sm" onClick={() => (window.location.href = "/request-early-access")}>
                 Upgrade
               </Button>
             </div>
