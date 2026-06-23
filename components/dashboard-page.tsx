@@ -471,7 +471,7 @@ export function DashboardPage() {
               ) : (
                 <div className="flex items-center gap-x-2 bg-gradient-to-r from-teal-500 to-cyan-500 dark:from-teal-600 dark:to-cyan-600 text-white p-3 rounded-xl">
                   <GraduationCap className="h-6 w-6 icon-bounce" />
-                  <span className="text-xl font-bold">TeachFlow</span>
+                  <span className="text-xl font-bold">TheClassHive</span>
                 </div>
               )}
             </div>
