@@ -9,3 +9,6 @@ export const supabase = createClient(supabaseUrl, supabaseKey)
 // Named export kept for backward compatibility with existing imports
 export const createClientSupabaseClient = () =>
   createClient(supabaseUrl, supabaseKey)
+
+export const createServerSupabaseClient = () =>
+  createClient(supabaseUrl, supabaseKey)
