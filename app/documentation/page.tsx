@@ -1,19 +1,56 @@
-import { WordDocumentEditor } from "@/components/word-document/document-editor"
+import type { Metadata } from "next"
+import ReactMarkdown from "react-markdown"
+
+export const metadata: Metadata = {
+  title: "Documentation",
+  description: "Full guide to every module in TheClassHive teacher dashboard.",
+}
 
 export default function DocumentationPage() {
   return (
-    <div className="container mx-auto py-6">
-      <h1 className="text-3xl font-bold mb-6">Teacher Dashboard Documentation</h1>
-      <WordDocumentEditor initialTitle="Teacher Dashboard Documentation" initialContent={documentContent} />
+    <div className="max-w-3xl mx-auto px-6 py-16">
+      <ReactMarkdown
+        components={{
+          h1: ({ children }) => (
+            <h1 className="text-3xl font-bold mb-6">{children}</h1>
+          ),
+          h2: ({ children }) => (
+            <h2 className="text-2xl font-semibold mt-10 mb-4 border-b pb-2">{children}</h2>
+          ),
+          h3: ({ children }) => (
+            <h3 className="text-xl font-semibold mt-8 mb-3">{children}</h3>
+          ),
+          p: ({ children }) => (
+            <p className="text-muted-foreground leading-relaxed mb-4">{children}</p>
+          ),
+          ul: ({ children }) => (
+            <ul className="list-disc list-inside space-y-1 mb-4 text-muted-foreground">{children}</ul>
+          ),
+          ol: ({ children }) => (
+            <ol className="list-decimal list-inside space-y-1 mb-4 text-muted-foreground">{children}</ol>
+          ),
+          li: ({ children }) => (
+            <li className="leading-relaxed">{children}</li>
+          ),
+          strong: ({ children }) => (
+            <strong className="font-semibold text-foreground">{children}</strong>
+          ),
+          code: ({ children }) => (
+            <code className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono">{children}</code>
+          ),
+        }}
+      >
+        {documentContent}
+      </ReactMarkdown>
     </div>
   )
 }
 
-const documentContent = `# Teacher Planning Dashboard Documentation
+const documentContent = `# TheClassHive Documentation
 
 ## Introduction
 
-The Teacher Planning Dashboard is a comprehensive web application designed to streamline and enhance the teaching experience. This document provides a detailed overview of all the dashboard's functions, their purpose, and how to use them effectively.
+TheClassHive is a comprehensive web application designed to streamline and enhance the teaching experience.
 
 ## Core Modules
 
@@ -243,46 +280,4 @@ The dashboard consists of the following core modules:
 - Use the formatting toolbar to style text
 - Save documents using the Save button
 - Export or print using the respective buttons
-
-## Technical Implementation Notes
-
-### Frontend Framework
-- Next.js with App Router
-- React Server Components for improved performance
-- TypeScript for type safety
-
-### UI Components
-- Shadcn UI component library
-- Tailwind CSS for styling
-- Lucide React for icons
-
-### State Management
-- React hooks for local state
-- Context API for shared state
-
-### Data Handling
-- Server Actions for form submissions
-- API routes for data fetching
-- Supabase for database and authentication
-
-### File Storage
-- Supabase Storage for file uploads and management
-
-### AI Integration
-- AI SDK for AI assistant functionality
-
-## Deployment and Environment
-
-The application is deployed on Vercel and uses the following environment variables:
-
-- SUPABASE_URL - Supabase project URL
-- SUPABASE_ANON_KEY - Supabase anonymous key
-- NEXT_PUBLIC_SUPABASE_URL - Public Supabase URL
-- NEXT_PUBLIC_SUPABASE_ANON_KEY - Public Supabase anonymous key
-
-## Conclusion
-
-The Teacher Planning Dashboard provides a comprehensive suite of tools to streamline and enhance the teaching experience. By leveraging these functions effectively, teachers can save time, improve organization, and focus more on student learning.
-
-For any technical issues or feature requests, please contact the development team.
 `
