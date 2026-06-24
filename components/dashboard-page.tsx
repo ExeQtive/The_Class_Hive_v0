@@ -62,7 +62,7 @@ import { SmallGroupsPage } from "@/components/small-groups/small-groups-page"
 import { AIAssistantPage } from "@/components/ai-assistant/ai-assistant-page"
 
 // Sidebar Item Component
-function SidebarItem({ icon, title, isActive, isCollapsed, isChildItem = false, onClick }) {
+function SidebarItem({ icon, title, isActive, isCollapsed, isChildItem = false, onClick, comingSoon = false }) {
   return (
     <button
       className={cn(
@@ -75,7 +75,16 @@ function SidebarItem({ icon, title, isActive, isCollapsed, isChildItem = false, 
       onClick={onClick}
     >
       {icon}
-      {!isCollapsed && <span className={isActive ? "animate-pulse-slow" : ""}>{title}</span>}
+      {!isCollapsed && (
+        <span className="flex items-center gap-2 w-full">
+          <span className={isActive ? "animate-pulse-slow" : ""}>{title}</span>
+          {comingSoon && (
+            <span className="ml-auto text-[10px] font-medium px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+              Soon
+            </span>
+          )}
+        </span>
+      )}
     </button>
   )
 }
@@ -546,6 +555,7 @@ export function DashboardPage() {
                 isActive={activePage === "file-management"}
                 isCollapsed={isCollapsed}
                 onClick={() => setActivePage("file-management")}
+                comingSoon={true}
               />
             </SidebarSection>
 
@@ -571,6 +581,7 @@ export function DashboardPage() {
                 isActive={activePage === "iep-management"}
                 isCollapsed={isCollapsed}
                 onClick={() => setActivePage("iep-management")}
+                comingSoon={true}
               />
               <SidebarItem
                 icon={
@@ -621,6 +632,7 @@ export function DashboardPage() {
                 isActive={activePage === "premium-features"}
                 isCollapsed={isCollapsed}
                 onClick={() => setActivePage("premium-features")}
+                comingSoon={true}
               />
             </SidebarSection>
 
@@ -635,6 +647,7 @@ export function DashboardPage() {
                 isActive={activePage === "settings"}
                 isCollapsed={isCollapsed}
                 onClick={() => setActivePage("settings")}
+                comingSoon={true}
               />
             </SidebarSection>
           </div>
@@ -741,6 +754,9 @@ export function DashboardPage() {
                 >
                   <User className="h-4 w-4 text-teal-500 dark:text-teal-400" />
                   <span>Profile</span>
+                  <span className="ml-auto text-[10px] font-medium px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                    Soon
+                  </span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => setActivePage("settings")}
