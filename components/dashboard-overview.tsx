@@ -386,7 +386,7 @@ export function DashboardOverview() {
                 {recentMessages.map((message) => (
                   <div key={message.id} className="flex items-start space-x-4 border-b pb-4 last:border-0 last:pb-0">
                     <Avatar>
-                      <AvatarImage src={`/placeholder.svg?height=40&width=40&text=${message.avatar}`} />
+                      <AvatarImage src={`/placeholder.svg?height=40&width=40&text=${message.avatar}`} alt="Message sender avatar" />
                       <AvatarFallback>{message.avatar}</AvatarFallback>
                     </Avatar>
                     <div className="space-y-1 flex-1">

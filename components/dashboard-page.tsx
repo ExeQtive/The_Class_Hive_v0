@@ -727,7 +727,7 @@ export function DashboardPage() {
                   className="rounded-full h-10 w-10 p-0 overflow-hidden border-2 border-teal-200 hover:border-teal-300 dark:border-teal-800 dark:hover:border-teal-700"
                 >
                   <Avatar className="h-full w-full">
-                    <AvatarImage src="/placeholder.svg?height=40&width=40" />
+                    <AvatarImage src="/placeholder.svg?height=40&width=40" alt="User avatar" />
                     <AvatarFallback className="bg-gradient-to-br from-teal-500 to-cyan-500 text-white">
                       TC
                     </AvatarFallback>
@@ -737,7 +737,7 @@ export function DashboardPage() {
               <DropdownMenuContent align="end" className="w-56 mt-1 p-2">
                 <div className="flex items-center gap-x-2 p-2">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src="/placeholder.svg?height=32&width=32" />
+                    <AvatarImage src="/placeholder.svg?height=32&width=32" alt="User avatar" />
                     <AvatarFallback className="bg-gradient-to-br from-teal-500 to-cyan-500 text-white">
                       TC
                     </AvatarFallback>
@@ -872,7 +872,7 @@ export function DashboardPage() {
                           <div className="space-y-4">
                             <div className="flex items-start space-x-4 border-b pb-4 last:border-0 last:pb-0">
                               <Avatar>
-                                <AvatarImage src="/placeholder.svg?height=40&width=40&text=SJ" />
+                                <AvatarImage src="/placeholder.svg?height=40&width=40&text=SJ" alt="Student SJ avatar" />
                                 <AvatarFallback>SJ</AvatarFallback>
                               </Avatar>
                               <div className="space-y-1 flex-1">
@@ -887,7 +887,7 @@ export function DashboardPage() {
                             </div>
                             <div className="flex items-start space-x-4 border-b pb-4 last:border-0 last:pb-0">
                               <Avatar>
-                                <AvatarImage src="/placeholder.svg?height=40&width=40&text=MC" />
+                                <AvatarImage src="/placeholder.svg?height=40&width=40&text=MC" alt="Student MC avatar" />
                                 <AvatarFallback>MC</AvatarFallback>
                               </Avatar>
                               <div className="space-y-1 flex-1">
@@ -902,7 +902,7 @@ export function DashboardPage() {
                             </div>
                             <div className="flex items-start space-x-4 border-b pb-4 last:border-0 last:pb-0">
                               <Avatar>
-                                <AvatarImage src="/placeholder.svg?height=40&width=40&text=AG" />
+                                <AvatarImage src="/placeholder.svg?height=40&width=40&text=AG" alt="Student AG avatar" />
                                 <AvatarFallback>AG</AvatarFallback>
                               </Avatar>
                               <div className="space-y-1 flex-1">

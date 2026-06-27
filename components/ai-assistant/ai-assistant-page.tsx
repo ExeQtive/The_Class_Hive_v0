@@ -290,14 +290,14 @@ export function AIAssistantPage() {
                   <Avatar className="h-8 w-8">
                     {message.role === "assistant" ? (
                       <>
-                        <AvatarImage src="/placeholder.svg?height=32&width=32&text=AI" />
+                        <AvatarImage src="/placeholder.svg?height=32&width=32&text=AI" alt="AI assistant avatar" />
                         <AvatarFallback>
                           <Bot className="h-5 w-5" />
                         </AvatarFallback>
                       </>
                     ) : (
                       <>
-                        <AvatarImage src="/placeholder.svg?height=32&width=32&text=You" />
+                        <AvatarImage src="/placeholder.svg?height=32&width=32&text=You" alt="Your avatar" />
                         <AvatarFallback>
                           <User className="h-5 w-5" />
                         </AvatarFallback>
@@ -330,7 +330,7 @@ export function AIAssistantPage() {
               {isLoading && (
                 <div className="flex gap-3 p-4 rounded-lg bg-muted/50">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src="/placeholder.svg?height=32&width=32&text=AI" />
+                    <AvatarImage src="/placeholder.svg?height=32&width=32&text=AI" alt="AI assistant avatar" />
                     <AvatarFallback>
                       <Bot className="h-5 w-5" />
                     </AvatarFallback>
