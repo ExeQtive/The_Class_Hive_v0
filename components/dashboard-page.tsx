@@ -90,7 +90,7 @@ function SidebarItem({ icon, title, isActive, isCollapsed, isChildItem = false, 
 }
 
 // Sidebar Section Component
-function SidebarSection({ title, isCollapsed, children }) {
+function SidebarSection({ title, isCollapsed, children }: { title: string; isCollapsed?: boolean; children: React.ReactNode }) {
   return (
     <div className="space-y-1">
       {!isCollapsed && <div className="pl-3 text-xs font-medium text-muted-foreground py-2">{title}</div>}
@@ -99,7 +99,7 @@ function SidebarSection({ title, isCollapsed, children }) {
   )
 }
 
-function DashboardCard({ title, value, description, icon }) {
+function DashboardCard({ title, value, description, icon }: { title: string; value: string; description: string; icon: React.ReactNode }) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -1204,7 +1204,7 @@ export function DashboardPage() {
   )
 }
 
-function TaskItem({ title, dueDate, priority }) {
+function TaskItem({ title, dueDate, priority }: { title: string; dueDate: string; priority: string }) {
   const getPriorityColor = (priority) => {
     switch (priority) {
       case "High":
@@ -1232,7 +1232,7 @@ function TaskItem({ title, dueDate, priority }) {
   )
 }
 
-function MessageItem({ sender, preview, time }) {
+function MessageItem({ sender, preview, time }: { sender: string; preview: string; time: string }) {
   return (
     <div className="flex items-center justify-between p-3 border rounded-lg dark:border-gray-800">
       <div className="flex items-center">
@@ -1247,7 +1247,7 @@ function MessageItem({ sender, preview, time }) {
   )
 }
 
-function LessonItem({ title, subject, grade, date }) {
+function LessonItem({ title, subject, grade, date }: { title: string; subject: string; grade: string; date: string }) {
   return (
     <div className="flex items-center justify-between p-3 border rounded-lg dark:border-gray-800">
       <div className="flex items-center">
