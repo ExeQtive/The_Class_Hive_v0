@@ -1028,7 +1028,7 @@ export function DashboardPage() {
                                       mode="single"
                                       selected={selectedDate}
                                       onSelect={setSelectedDate}
-                                      initialFocus
+                                     
                                     />
                                   </PopoverContent>
                                 </Popover>

@@ -254,7 +254,7 @@ export function CalendarPage() {
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0">
-                        <Calendar mode="single" selected={selectedDate} onSelect={setSelectedDate} initialFocus />
+                        <Calendar mode="single" selected={selectedDate} onSelect={setSelectedDate}/>
                       </PopoverContent>
                     </Popover>
                   </div>

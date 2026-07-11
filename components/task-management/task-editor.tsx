@@ -97,7 +97,7 @@ export function TaskEditor({ task, onSave, onCancel }: TaskEditorProps) {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
-                  <Calendar mode="single" selected={date} onSelect={handleDateSelect} initialFocus />
+                  <Calendar mode="single" selected={date} onSelect={handleDateSelect}/>
                 </PopoverContent>
               </Popover>
             </div>

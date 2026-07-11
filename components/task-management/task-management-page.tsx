@@ -448,7 +448,7 @@ export function TaskManagementPage() {
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
-                <Calendar mode="single" selected={dateFilter} onSelect={setDateFilter} initialFocus />
+                <Calendar mode="single" selected={dateFilter} onSelect={setDateFilter}/>
               </PopoverContent>
             </Popover>
 

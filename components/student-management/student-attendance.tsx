@@ -130,7 +130,7 @@ export function StudentAttendance({ students, onSave, onCancel }: StudentAttenda
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="end">
-                    <Calendar mode="single" selected={date} onSelect={(date) => date && setDate(date)} initialFocus />
+                    <Calendar mode="single" selected={date} onSelect={(date) => date && setDate(date)}/>
                   </PopoverContent>
                 </Popover>
               </div>

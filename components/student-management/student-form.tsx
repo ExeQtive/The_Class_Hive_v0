@@ -272,7 +272,7 @@ export function StudentForm({ student, onSave, onCancel }: StudentFormProps) {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
-                  <Calendar mode="single" selected={date} onSelect={handleDateSelect} initialFocus />
+                  <Calendar mode="single" selected={date} onSelect={handleDateSelect}/>
                 </PopoverContent>
               </Popover>
             </div>

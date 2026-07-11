@@ -133,7 +133,6 @@ export default function ConferenceScheduler({
                         setSelectedDate(date)
                         setCalendarOpen(false)
                       }}
-                      initialFocus
                       className="border border-orange-100"
                     />
                   </PopoverContent>
