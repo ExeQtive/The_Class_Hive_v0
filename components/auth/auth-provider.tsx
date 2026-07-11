@@ -37,7 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (session?.user) {
         const { data } = await supabase.from("users").select("*").eq("id", session.user.id).single()
 
-        setUser(data as User)
+        setUser(data as unknown as User)
       }
 
       setLoading(false)
@@ -51,7 +51,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (session?.user) {
         const { data } = await supabase.from("users").select("*").eq("id", session.user.id).single()
 
-        setUser(data as User)
+        setUser(data as unknown as User)
       } else {
         setUser(null)
       }
