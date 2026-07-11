@@ -62,7 +62,7 @@ import { SmallGroupsPage } from "@/components/small-groups/small-groups-page"
 import { AIAssistantPage } from "@/components/ai-assistant/ai-assistant-page"
 
 // Sidebar Item Component
-function SidebarItem({ icon, title, isActive, isCollapsed, isChildItem = false, onClick, comingSoon = false }) {
+function SidebarItem({ icon, title, isActive, isCollapsed, isChildItem = false, onClick, comingSoon = false }: { icon: React.ReactNode; title: string; isActive?: boolean; isCollapsed?: boolean; isChildItem?: boolean; onClick?: () => void; comingSoon?: boolean }) {
   return (
     <button
       className={cn(
