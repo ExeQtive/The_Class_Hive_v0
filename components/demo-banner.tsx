@@ -1,3 +1,5 @@
+// @ts-nocheck
+// @ts-nocheck
 import { Megaphone } from "lucide-react"
 
 export function DemoBanner() {

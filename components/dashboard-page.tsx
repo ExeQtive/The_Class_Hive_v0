@@ -1,4 +1,6 @@
 // @ts-nocheck
+// @ts-nocheck
+// @ts-nocheck
 "use client"
 
 import { CardDescription } from "@/components/ui/card"

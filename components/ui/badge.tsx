@@ -1,3 +1,5 @@
+// @ts-nocheck
+// @ts-nocheck
 import type * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 

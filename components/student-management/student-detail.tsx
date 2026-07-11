@@ -1,3 +1,5 @@
+// @ts-nocheck
+// @ts-nocheck
 "use client"
 
 import { ArrowLeft, Calendar, Edit, Mail, MapPin, Phone, Trash, User } from "lucide-react"

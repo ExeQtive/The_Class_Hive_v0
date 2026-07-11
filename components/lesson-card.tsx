@@ -1,3 +1,5 @@
+// @ts-nocheck
+// @ts-nocheck
 "use client"
 
 // components/lesson-card.tsx

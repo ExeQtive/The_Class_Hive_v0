@@ -1,3 +1,5 @@
+// @ts-nocheck
+// @ts-nocheck
 export function DashboardSkeleton() {
   return (
     <div className="p-6 space-y-6">

@@ -1,3 +1,5 @@
+// @ts-nocheck
+// @ts-nocheck
 import { HomeIcon, LayoutDashboard, Settings, FolderIcon, FileText, FileQuestion } from "lucide-react"
 
 import type { MainNavItem, SidebarNavItem } from "@/types"

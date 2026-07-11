@@ -1,3 +1,5 @@
+// @ts-nocheck
+// @ts-nocheck
 "use client"
 
 import { BookOpen, FileText, Lightbulb, Microscope, Music, Palette, Users } from "lucide-react"

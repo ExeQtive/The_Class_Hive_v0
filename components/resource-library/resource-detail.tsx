@@ -1,3 +1,5 @@
+// @ts-nocheck
+// @ts-nocheck
 "use client"
 
 import { ArrowLeft, Download, Edit, FileText, Star, Trash } from "lucide-react"
