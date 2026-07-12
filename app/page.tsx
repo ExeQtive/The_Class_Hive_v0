@@ -1,36 +1,27 @@
-import dynamic from "next/dynamic"
-import { Suspense } from "react"
-import { DemoBanner } from "@/components/demo-banner"
-
-// Create a loading skeleton component
-function LoadingSkeleton() {
-  return (
-    <div className="p-6 space-y-4">
-      <div className="h-8 bg-gray-200 rounded-md w-1/3 animate-pulse"></div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="h-40 bg-gray-200 rounded-md animate-pulse"></div>
-        ))}
-      </div>
-      <div className="h-60 bg-gray-200 rounded-md animate-pulse mt-4"></div>
-    </div>
-  )
-}
-
-// Dynamically import the DashboardPage component with SSR disabled
-// Fix the import path to match the actual file location
-const DashboardPage = dynamic(() => import("../components/dashboard-page").then((mod) => mod.DashboardPage), {
-  //ssr: false,
-  loading: () => <LoadingSkeleton />,
-})
+import Hero from "@/components/ui/animated-shader-hero"
 
 export default function Home() {
   return (
-    <>
-      <DemoBanner />
-      <Suspense fallback={<LoadingSkeleton />}>
-        <DashboardPage />
-      </Suspense>
-    </>
+    <Hero
+      trustBadge={{
+        text: "Built for K-12 educators",
+        icons: ["✨"],
+      }}
+      headline={{
+        line1: "One Workspace.",
+        line2: "Every Teacher Needs.",
+      }}
+      subtitle="Replace 15 disconnected edtech tools with one unified dashboard for lesson planning, student management, and parent communication."
+      buttons={{
+        primary: {
+          text: "Request Early Access",
+          href: "/request-early-access",
+        },
+        secondary: {
+          text: "See the Demo",
+          href: "/dashboard",
+        },
+      }}
+    />
   )
 }
