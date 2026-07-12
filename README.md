@@ -1,30 +1,17 @@
-# Teacher Planning Dashboard
+# TheClassHive
 
-*Automatically synced with your [v0.dev](https://v0.dev) deployments*
+A unified workspace for K-12 teachers. Built with Next.js, Supabase, and Tailwind CSS.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/exeqtives-projects/v0-teacher-planning-dashboard)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/XCtbCqbz5m4)
+Live at [www.theclasshive.com](https://www.theclasshive.com)
 
-## Overview
+## Stack
+- Next.js 16
+- Supabase (Postgres + RLS)
+- Tailwind CSS + shadcn/ui
+- Vercel
 
-This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
-
-## Deployment
-
-Your project is live at:
-
-**[https://vercel.com/exeqtives-projects/v0-teacher-planning-dashboard](https://vercel.com/exeqtives-projects/v0-teacher-planning-dashboard)**
-
-## Build your app
-
-Continue building your app on:
-
-**[https://v0.dev/chat/projects/XCtbCqbz5m4](https://v0.dev/chat/projects/XCtbCqbz5m4)**
-
-## How It Works
-
-1. Create and modify your project using [v0.dev](https://v0.dev)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository# Sprint 0 Complete
+## Sprint 0
+- Waitlist form collecting to Supabase
+- Privacy and Security pages (FERPA/COPPA aligned)
+- Custom 404, demo banner, Coming Soon badges
+- Lighthouse 100 Best Practices / 100 SEO
