@@ -149,37 +149,140 @@ export interface Database {
       students: {
         Row: {
           id: string
+          user_id: string
           first_name: string
           last_name: string
-          email: string | null
+          gender: string | null
           grade: string | null
+          section: string | null
+          date_of_birth: string | null
+          guardian_name: string | null
+          guardian_email: string | null
+          guardian_phone: string | null
+          address: string | null
+          allergies: string | null
+          emergency_contact: string | null
           notes: string | null
-          has_iep: boolean
-          teacher_id: string
+          avatar: string | null
           created_at: string
           updated_at: string
         }
         Insert: {
           id?: string
+          user_id: string
           first_name: string
           last_name: string
-          email?: string | null
+          gender?: string | null
           grade?: string | null
+          section?: string | null
+          date_of_birth?: string | null
+          guardian_name?: string | null
+          guardian_email?: string | null
+          guardian_phone?: string | null
+          address?: string | null
+          allergies?: string | null
+          emergency_contact?: string | null
           notes?: string | null
-          has_iep?: boolean
-          teacher_id: string
+          avatar?: string | null
           created_at?: string
           updated_at?: string
         }
         Update: {
           id?: string
+          user_id?: string
           first_name?: string
           last_name?: string
-          email?: string | null
+          gender?: string | null
           grade?: string | null
+          section?: string | null
+          date_of_birth?: string | null
+          guardian_name?: string | null
+          guardian_email?: string | null
+          guardian_phone?: string | null
+          address?: string | null
+          allergies?: string | null
+          emergency_contact?: string | null
           notes?: string | null
-          has_iep?: boolean
-          teacher_id?: string
+          avatar?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      ieps: {
+        Row: {
+          id: string
+          user_id: string
+          student_id: string
+          start_date: string
+          review_date: string
+          end_date: string
+          status: string
+          primary_disability: string | null
+          accommodations: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          student_id: string
+          start_date: string
+          review_date: string
+          end_date: string
+          status?: string
+          primary_disability?: string | null
+          accommodations?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          student_id?: string
+          start_date?: string
+          review_date?: string
+          end_date?: string
+          status?: string
+          primary_disability?: string | null
+          accommodations?: Json
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      iep_goals: {
+        Row: {
+          id: string
+          iep_id: string
+          area: string
+          description: string
+          objective: string
+          progress: number
+          last_updated: string | null
+          notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          iep_id: string
+          area: string
+          description: string
+          objective: string
+          progress?: number
+          last_updated?: string | null
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          iep_id?: string
+          area?: string
+          description?: string
+          objective?: string
+          progress?: number
+          last_updated?: string | null
+          notes?: string | null
           created_at?: string
           updated_at?: string
         }

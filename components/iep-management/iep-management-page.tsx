@@ -4,12 +4,32 @@
 
 import { useState } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button"
+import { Plus } from "lucide-react"
 import { IEPStudentList } from "./iep-student-list"
 import { IEPGoalTracker } from "./iep-goal-tracker"
 import { IEPDocuments } from "./iep-documents"
+import { IEPForm } from "./iep-form"
 
 export default function IEPManagementPage() {
   const [activeTab, setActiveTab] = useState("students")
+  const [showForm, setShowForm] = useState(false)
+  const [listKey, setListKey] = useState(0)
+
+  if (showForm) {
+    return (
+      <div className="container mx-auto py-6">
+        <IEPForm
+          iep={null}
+          onSave={() => {
+            setShowForm(false)
+            setListKey((k) => k + 1)
+          }}
+          onCancel={() => setShowForm(false)}
+        />
+      </div>
+    )
+  }
 
   return (
     <div className="container mx-auto py-6">
@@ -18,6 +38,10 @@ export default function IEPManagementPage() {
           <h1 className="text-3xl font-bold tracking-tight">IEP Management</h1>
           <p className="text-muted-foreground">Track and manage Individualized Education Plans for your students.</p>
         </div>
+        <Button onClick={() => setShowForm(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Add IEP
+        </Button>
       </div>
 
       <Tabs defaultValue="students" value={activeTab} onValueChange={setActiveTab}>
@@ -28,7 +52,7 @@ export default function IEPManagementPage() {
         </TabsList>
 
         <TabsContent value="students" className="space-y-6">
-          <IEPStudentList />
+          <IEPStudentList key={listKey} />
         </TabsContent>
 
         <TabsContent value="goals" className="space-y-6">

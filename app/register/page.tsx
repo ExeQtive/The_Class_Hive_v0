@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2 } from "lucide-react"
 import Link from "next/link"
+import { supabase } from "@/lib/supabase"
 
 const registerSchema = z
   .object({
@@ -51,22 +52,16 @@ export default function RegisterPage() {
     setError(null)
 
     try {
-      const response = await fetch("/api/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const { error: signUpError } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          data: { full_name: data.name },
         },
-        body: JSON.stringify({
-          name: data.name,
-          email: data.email,
-          password: data.password,
-        }),
       })
 
-      const result = await response.json()
-
-      if (!response.ok) {
-        setError(result.error || "Failed to register")
+      if (signUpError) {
+        setError(signUpError.message)
         return
       }
 

@@ -10,8 +10,11 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { ArrowLeft, Plus, Save, Trash2 } from "lucide-react"
+import { ArrowLeft, Loader2, Plus, Save, Trash2 } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { getCurrentUser } from "@/lib/supabase"
+import { createStudent } from "@/lib/students"
+import { createIEP } from "@/lib/iep"
 
 interface IEPFormProps {
   iep: any
@@ -62,14 +65,50 @@ export function IEPForm({ iep, onSave, onCancel }: IEPFormProps) {
     handleChange("accommodations", updatedAccommodations)
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSaving, setIsSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Filter out empty accommodations
-    const filteredAccommodations = formData.accommodations.filter((a) => a.trim() !== "")
-    onSave({
-      ...formData,
-      accommodations: filteredAccommodations,
-    })
+    setSaveError(null)
+    setIsSaving(true)
+
+    try {
+      const user = await getCurrentUser()
+      if (!user) {
+        setSaveError("Please sign in to save an IEP.")
+        return
+      }
+
+      const filteredAccommodations = formData.accommodations.filter((a: string) => a.trim() !== "")
+      const [firstName, ...rest] = formData.studentName.trim().split(" ")
+      const lastName = rest.join(" ")
+
+      const student = await createStudent({
+        userId: user.id,
+        firstName: firstName || formData.studentName,
+        lastName,
+        grade: formData.studentGrade,
+        section: formData.studentSection,
+      })
+
+      await createIEP({
+        userId: user.id,
+        studentId: student.id,
+        startDate: formData.startDate,
+        reviewDate: formData.reviewDate,
+        endDate: formData.endDate,
+        status: formData.status,
+        primaryDisability: formData.primaryDisability,
+        accommodations: filteredAccommodations,
+      })
+
+      onSave({ ...formData, accommodations: filteredAccommodations })
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : "Failed to save IEP")
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   return (
@@ -81,11 +120,22 @@ export function IEPForm({ iep, onSave, onCancel }: IEPFormProps) {
           </Button>
           <h2 className="text-2xl font-bold tracking-tight">{iep ? "Edit IEP" : "Create New IEP"}</h2>
         </div>
-        <Button onClick={handleSubmit}>
-          <Save className="h-4 w-4 mr-2" />
-          Save IEP
+        <Button onClick={handleSubmit} disabled={isSaving}>
+          {isSaving ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Saving...
+            </>
+          ) : (
+            <>
+              <Save className="h-4 w-4 mr-2" />
+              Save IEP
+            </>
+          )}
         </Button>
       </div>
+
+      {saveError && <p className="text-sm text-destructive">{saveError}</p>}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <Card>

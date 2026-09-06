@@ -1,76 +1,79 @@
-// @ts-nocheck
-// @ts-nocheck
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Eye, FileEdit, Search } from "lucide-react"
+import { getCurrentUser } from "@/lib/supabase"
+import { getIEPsForUser, type IEPWithStudent } from "@/lib/iep"
 
-// Mock data for demonstration
-const mockStudents = [
-  {
-    id: "1",
-    name: "Alex Johnson",
-    grade: "5th",
-    lastReview: "2023-09-15",
-    nextReview: "2024-03-15",
-    status: "Current",
-  },
-  {
-    id: "2",
-    name: "Jamie Smith",
-    grade: "3rd",
-    lastReview: "2023-08-10",
-    nextReview: "2024-02-10",
-    status: "Review Soon",
-  },
-  {
-    id: "3",
-    name: "Taylor Williams",
-    grade: "7th",
-    lastReview: "2023-10-05",
-    nextReview: "2024-04-05",
-    status: "Current",
-  },
-  {
-    id: "4",
-    name: "Morgan Brown",
-    grade: "4th",
-    lastReview: "2023-07-20",
-    nextReview: "2024-01-20",
-    status: "Overdue",
-  },
-  {
-    id: "5",
-    name: "Casey Davis",
-    grade: "6th",
-    lastReview: "2023-11-12",
-    nextReview: "2024-05-12",
-    status: "Current",
-  },
-]
+type ReviewStatus = "Current" | "Review Soon" | "Overdue"
+
+function getReviewStatus(reviewDate: string): ReviewStatus {
+  const daysUntilReview = (new Date(reviewDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+  if (daysUntilReview < 0) return "Overdue"
+  if (daysUntilReview <= 30) return "Review Soon"
+  return "Current"
+}
+
+function getStatusColor(status: ReviewStatus) {
+  switch (status) {
+    case "Current":
+      return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+    case "Review Soon":
+      return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
+    case "Overdue":
+      return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
+  }
+}
 
 export function IEPStudentList() {
   const [searchTerm, setSearchTerm] = useState("")
-  const [students, setStudents] = useState(mockStudents)
+  const [ieps, setIeps] = useState<IEPWithStudent[] | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [signedOut, setSignedOut] = useState(false)
 
-  const filteredStudents = students.filter((student) => student.name.toLowerCase().includes(searchTerm.toLowerCase()))
+  useEffect(() => {
+    let cancelled = false
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Current":
-        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
-      case "Review Soon":
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
-      case "Overdue":
-        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300"
+    async function load() {
+      const user = await getCurrentUser()
+      if (cancelled) return
+
+      if (!user) {
+        setSignedOut(true)
+        return
+      }
+
+      try {
+        const data = await getIEPsForUser(user.id)
+        if (!cancelled) setIeps(data)
+      } catch (err) {
+        if (!cancelled) setError(err instanceof Error ? err.message : "Failed to load IEPs")
+      }
     }
+
+    load()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  if (signedOut) {
+    return <div className="py-12 text-center text-muted-foreground">Please sign in to view your students.</div>
   }
+
+  if (error) {
+    return <div className="py-12 text-center text-destructive">{error}</div>
+  }
+
+  if (ieps === null) {
+    return <div className="py-12 text-center text-muted-foreground">Loading students…</div>
+  }
+
+  const filteredStudents = ieps.filter((iep) => iep.studentName.toLowerCase().includes(searchTerm.toLowerCase()))
 
   return (
     <div className="space-y-4">
@@ -93,8 +96,7 @@ export function IEPStudentList() {
             <TableRow>
               <TableHead>Student Name</TableHead>
               <TableHead>Grade</TableHead>
-              <TableHead>Last Review</TableHead>
-              <TableHead>Next Review</TableHead>
+              <TableHead>Review Date</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -102,36 +104,38 @@ export function IEPStudentList() {
           <TableBody>
             {filteredStudents.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                   No students found
                 </TableCell>
               </TableRow>
             ) : (
-              filteredStudents.map((student) => (
-                <TableRow key={student.id}>
-                  <TableCell className="font-medium">{student.name}</TableCell>
-                  <TableCell>{student.grade}</TableCell>
-                  <TableCell>{new Date(student.lastReview).toLocaleDateString()}</TableCell>
-                  <TableCell>{new Date(student.nextReview).toLocaleDateString()}</TableCell>
-                  <TableCell>
-                    <Badge className={getStatusColor(student.status)} variant="outline">
-                      {student.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button variant="ghost" size="icon">
-                        <Eye className="h-4 w-4" />
-                        <span className="sr-only">View</span>
-                      </Button>
-                      <Button variant="ghost" size="icon">
-                        <FileEdit className="h-4 w-4" />
-                        <span className="sr-only">Edit</span>
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
+              filteredStudents.map((iep) => {
+                const status = getReviewStatus(iep.reviewDate)
+                return (
+                  <TableRow key={iep.id}>
+                    <TableCell className="font-medium">{iep.studentName}</TableCell>
+                    <TableCell>{iep.grade}</TableCell>
+                    <TableCell>{new Date(iep.reviewDate).toLocaleDateString()}</TableCell>
+                    <TableCell>
+                      <Badge className={getStatusColor(status)} variant="outline">
+                        {status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button variant="ghost" size="icon">
+                          <Eye className="h-4 w-4" />
+                          <span className="sr-only">View</span>
+                        </Button>
+                        <Button variant="ghost" size="icon">
+                          <FileEdit className="h-4 w-4" />
+                          <span className="sr-only">Edit</span>
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )
+              })
             )}
           </TableBody>
         </Table>

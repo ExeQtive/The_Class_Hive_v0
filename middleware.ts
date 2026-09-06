@@ -1,24 +1,24 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
-import { getToken } from "next-auth/jwt"
+import { updateSession } from "@/lib/supabase/middleware"
+
+// Paths that require authentication
+const authRequiredPaths = [
+  "/dashboard",
+  "/lesson-planning",
+  "/task-management",
+  "/resource-library",
+  "/student-management",
+  "/parent-communication",
+  "/small-groups",
+  "/ai-assistant",
+  "/settings",
+  "/profile",
+]
 
 export async function middleware(request: NextRequest) {
-  const token = await getToken({ req: request })
-  const isAuthenticated = !!token
-
-  // Paths that require authentication
-  const authRequiredPaths = [
-    "/dashboard",
-    "/lesson-planning",
-    "/task-management",
-    "/resource-library",
-    "/student-management",
-    "/parent-communication",
-    "/small-groups",
-    "/ai-assistant",
-    "/settings",
-    "/profile",
-  ]
+  const { response, user } = await updateSession(request)
+  const isAuthenticated = !!user
 
   // Check if the path requires authentication
   const isAuthRequired = authRequiredPaths.some((path) => request.nextUrl.pathname.startsWith(path))
@@ -28,24 +28,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url))
   }
 
-  // Check for subscription status for premium features
-  if (isAuthenticated && request.nextUrl.pathname.startsWith("/ai-assistant")) {
-    // @ts-ignore - token.planType is added in our auth callbacks
-    const planType = token.planType || "free"
-    // @ts-ignore
-    const isLifetimeMember = token.isLifetimeMember || false
-    // @ts-ignore
-    const trialEndsAt = token.trialEndsAt ? new Date(token.trialEndsAt) : null
-    const now = new Date()
-
-    const hasAccess = planType !== "free" || isLifetimeMember || (trialEndsAt && trialEndsAt > now)
-
-    if (!hasAccess) {
-      return NextResponse.redirect(new URL("/pricing", request.url))
-    }
-  }
-
-  return NextResponse.next()
+  return response
 }
 
 export const config = {
