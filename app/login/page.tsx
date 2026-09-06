@@ -14,48 +14,126 @@ import { Loader2 } from "lucide-react"
 import Link from "next/link"
 import { supabase } from "@/lib/supabase"
 
-const loginSchema = z.object({
+const emailSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(1, { message: "Password is required" }),
+})
+const codeSchema = z.object({
+  code: z.string().length(6, { message: "Enter the 6-digit code from your email" }),
 })
 
-type LoginFormValues = z.infer<typeof loginSchema>
+type EmailFormValues = z.infer<typeof emailSchema>
+type CodeFormValues = z.infer<typeof codeSchema>
 
 export default function LoginPage() {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [sentTo, setSentTo] = useState<string | null>(null)
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "" },
+  const emailForm = useForm<EmailFormValues>({
+    resolver: zodResolver(emailSchema),
+    defaultValues: { email: "" },
+  })
+  const codeForm = useForm<CodeFormValues>({
+    resolver: zodResolver(codeSchema),
+    defaultValues: { code: "" },
   })
 
-  const onSubmit = async (data: LoginFormValues) => {
+  const requestCode = async (data: EmailFormValues) => {
     setIsLoading(true)
     setError(null)
 
     try {
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
-      })
-
-      if (signInError) {
-        setError(signInError.message)
+      const { error: otpError } = await supabase.auth.signInWithOtp({ email: data.email })
+      if (otpError) {
+        setError(otpError.message)
         return
       }
-
-      router.push("/dashboard")
-    } catch (error) {
+      setSentTo(data.email)
+    } catch {
       setError("An unexpected error occurred. Please try again.")
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const verifyCode = async (data: CodeFormValues) => {
+    if (!sentTo) return
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        email: sentTo,
+        token: data.code,
+        type: "email",
+      })
+
+      if (verifyError) {
+        setError(verifyError.message)
+        return
+      }
+
+      router.push("/dashboard")
+    } catch {
+      setError("An unexpected error occurred. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  if (sentTo) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-background to-cyan-50/30 dark:from-background dark:to-cyan-950/10 p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold text-center">Enter your code</CardTitle>
+            <CardDescription className="text-center">
+              We sent a 6-digit code to <span className="font-medium text-foreground">{sentTo}</span>
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={codeForm.handleSubmit(verifyCode)} className="space-y-4">
+              {error && (
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="code">Code</Label>
+                <Input
+                  id="code"
+                  inputMode="numeric"
+                  maxLength={6}
+                  placeholder="123456"
+                  className="text-center text-lg tracking-widest"
+                  {...codeForm.register("code")}
+                />
+                {codeForm.formState.errors.code && (
+                  <p className="text-sm text-red-500">{codeForm.formState.errors.code.message}</p>
+                )}
+              </div>
+
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Verifying...
+                  </>
+                ) : (
+                  "Verify and sign in"
+                )}
+              </Button>
+
+              <Button type="button" variant="ghost" className="w-full" onClick={() => setSentTo(null)}>
+                Use a different email
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   return (
@@ -63,10 +141,12 @@ export default function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">Welcome back</CardTitle>
-          <CardDescription className="text-center">Sign in to your TheClassHive account</CardDescription>
+          <CardDescription className="text-center">
+            Enter your email and we&apos;ll send you a sign-in code
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={emailForm.handleSubmit(requestCode)} className="space-y-4">
             {error && (
               <Alert variant="destructive">
                 <AlertDescription>{error}</AlertDescription>
@@ -75,24 +155,20 @@ export default function LoginPage() {
 
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="name@example.com" {...register("email")} />
-              {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" {...register("password")} />
-              {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
+              <Input id="email" type="email" placeholder="name@example.com" {...emailForm.register("email")} />
+              {emailForm.formState.errors.email && (
+                <p className="text-sm text-red-500">{emailForm.formState.errors.email.message}</p>
+              )}
             </div>
 
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Signing in...
+                  Sending code...
                 </>
               ) : (
-                "Sign In"
+                "Send sign-in code"
               )}
             </Button>
           </form>

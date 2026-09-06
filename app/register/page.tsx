@@ -14,64 +14,130 @@ import { Loader2 } from "lucide-react"
 import Link from "next/link"
 import { supabase } from "@/lib/supabase"
 
-const registerSchema = z
-  .object({
-    name: z.string().min(2, { message: "Name must be at least 2 characters" }),
-    email: z.string().email({ message: "Please enter a valid email address" }),
-    password: z.string().min(8, { message: "Password must be at least 8 characters" }),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  })
+const registerSchema = z.object({
+  name: z.string().min(2, { message: "Name must be at least 2 characters" }),
+  email: z.string().email({ message: "Please enter a valid email address" }),
+})
+const codeSchema = z.object({
+  code: z.string().length(6, { message: "Enter the 6-digit code from your email" }),
+})
 
 type RegisterFormValues = z.infer<typeof registerSchema>
+type CodeFormValues = z.infer<typeof codeSchema>
 
 export default function RegisterPage() {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [sentTo, setSentTo] = useState<string | null>(null)
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<RegisterFormValues>({
+  const registerForm = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-    },
+    defaultValues: { name: "", email: "" },
+  })
+  const codeForm = useForm<CodeFormValues>({
+    resolver: zodResolver(codeSchema),
+    defaultValues: { code: "" },
   })
 
-  const onSubmit = async (data: RegisterFormValues) => {
+  const requestCode = async (data: RegisterFormValues) => {
     setIsLoading(true)
     setError(null)
 
     try {
-      const { error: signUpError } = await supabase.auth.signUp({
+      const { error: otpError } = await supabase.auth.signInWithOtp({
         email: data.email,
-        password: data.password,
-        options: {
-          data: { full_name: data.name },
-        },
+        options: { data: { full_name: data.name } },
       })
-
-      if (signUpError) {
-        setError(signUpError.message)
+      if (otpError) {
+        setError(otpError.message)
         return
       }
-
-      // Redirect to login page on successful registration
-      router.push("/login?registered=true")
-    } catch (error) {
+      setSentTo(data.email)
+    } catch {
       setError("An unexpected error occurred. Please try again.")
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const verifyCode = async (data: CodeFormValues) => {
+    if (!sentTo) return
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        email: sentTo,
+        token: data.code,
+        type: "email",
+      })
+
+      if (verifyError) {
+        setError(verifyError.message)
+        return
+      }
+
+      router.push("/dashboard")
+    } catch {
+      setError("An unexpected error occurred. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  if (sentTo) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-background to-cyan-50/30 dark:from-background dark:to-cyan-950/10 p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold text-center">Enter your code</CardTitle>
+            <CardDescription className="text-center">
+              We sent a 6-digit code to <span className="font-medium text-foreground">{sentTo}</span>
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={codeForm.handleSubmit(verifyCode)} className="space-y-4">
+              {error && (
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="code">Code</Label>
+                <Input
+                  id="code"
+                  inputMode="numeric"
+                  maxLength={6}
+                  placeholder="123456"
+                  className="text-center text-lg tracking-widest"
+                  {...codeForm.register("code")}
+                />
+                {codeForm.formState.errors.code && (
+                  <p className="text-sm text-red-500">{codeForm.formState.errors.code.message}</p>
+                )}
+              </div>
+
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Verifying...
+                  </>
+                ) : (
+                  "Verify and create account"
+                )}
+              </Button>
+
+              <Button type="button" variant="ghost" className="w-full" onClick={() => setSentTo(null)}>
+                Use a different email
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   return (
@@ -80,11 +146,11 @@ export default function RegisterPage() {
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">Create an account</CardTitle>
           <CardDescription className="text-center">
-            Enter your information to create your TeachFlow account
+            Enter your information and we&apos;ll send you a sign-in code
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={registerForm.handleSubmit(requestCode)} className="space-y-4">
             {error && (
               <Alert variant="destructive">
                 <AlertDescription>{error}</AlertDescription>
@@ -93,36 +159,28 @@ export default function RegisterPage() {
 
             <div className="space-y-2">
               <Label htmlFor="name">Name</Label>
-              <Input id="name" placeholder="John Doe" {...register("name")} />
-              {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
+              <Input id="name" placeholder="John Doe" {...registerForm.register("name")} />
+              {registerForm.formState.errors.name && (
+                <p className="text-sm text-red-500">{registerForm.formState.errors.name.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="name@example.com" {...register("email")} />
-              {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" {...register("password")} />
-              {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <Input id="confirmPassword" type="password" {...register("confirmPassword")} />
-              {errors.confirmPassword && <p className="text-sm text-red-500">{errors.confirmPassword.message}</p>}
+              <Input id="email" type="email" placeholder="name@example.com" {...registerForm.register("email")} />
+              {registerForm.formState.errors.email && (
+                <p className="text-sm text-red-500">{registerForm.formState.errors.email.message}</p>
+              )}
             </div>
 
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating account...
+                  Sending code...
                 </>
               ) : (
-                "Create Account"
+                "Send sign-in code"
               )}
             </Button>
           </form>
@@ -136,26 +194,8 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          <Button variant="outline" className="w-full" onClick={() => {}} disabled={isLoading}>
-            <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
-              <path
-                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                fill="#4285F4"
-              />
-              <path
-                d="M12 23c2.97 0 5.46-1.97 6.74-4.73h-3.57c-.84 1.27-2.12 2.08-3.17 2.08-2.36 0-4.36-1.58-5.08-3.71h-3.67v2.84C4.95 21.3 8.27 23 12 23z"
-                fill="#34A853"
-              />
-              <path
-                d="M6.92 13.36c-.18-.54-.28-1.12-.28-1.72s.1-1.18.28-1.72V7.08h-3.67C2.45 8.55 2 10.22 2 12s.45 3.45 1.25 4.92l3.67-3.56z"
-                fill="#FBBC05"
-              />
-              <path
-                d="M12 6.58c1.33 0 2.53.45 3.47 1.34l3.12-3.12C16.97 3.19 14.65 2 12 2 8.27 2 4.95 3.7 3.25 6.51l3.67 2.84C7.64 7.22 9.64 5.64 12 5.64z"
-                fill="#EA4335"
-              />
-            </svg>
-            Google
+          <Button variant="outline" className="w-full" disabled title="Google sign-in coming soon">
+            Google (coming soon)
           </Button>
         </CardContent>
         <CardFooter className="flex justify-center">
