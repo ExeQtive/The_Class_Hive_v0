@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { Suspense, useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -24,9 +24,10 @@ const codeSchema = z.object({
 type EmailFormValues = z.infer<typeof emailSchema>
 type CodeFormValues = z.infer<typeof codeSchema>
 
-export default function LoginPage() {
+function LoginPageInner() {
   const router = useRouter()
-  const [error, setError] = useState<string | null>(null)
+  const searchParams = useSearchParams()
+  const [error, setError] = useState<string | null>(searchParams.get("error"))
   const [isLoading, setIsLoading] = useState(false)
   const [sentTo, setSentTo] = useState<string | null>(null)
 
@@ -196,5 +197,13 @@ export default function LoginPage() {
         </CardFooter>
       </Card>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginPageInner />
+    </Suspense>
   )
 }
