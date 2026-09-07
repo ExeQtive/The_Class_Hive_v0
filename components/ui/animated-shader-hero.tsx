@@ -172,26 +172,24 @@ void main(){gl_Position=position;}`
         .delay-600 { animation-delay: 0.6s; }
         .delay-800 { animation-delay: 0.8s; }
 
-        @keyframes logoHexFade {
-          from { opacity: 0; }
-          to { opacity: 1; }
+        @keyframes logoFloat {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-10px); }
         }
-        @keyframes logoHexStroke {
-          from { stroke-dashoffset: 410; }
-          to { stroke-dashoffset: 0; }
+        @keyframes logoPearlSweep {
+          0%, 100% { transform: translateX(-300px); }
+          50% { transform: translateX(300px); }
         }
-        @keyframes logoBookReveal {
-          from { opacity: 0; transform: scale(0.85); }
-          to { opacity: 1; transform: scale(1); }
+        .logo-float {
+          animation: logoFloat 3.5s ease-in-out infinite;
         }
-        .logo-hex-group { opacity: 0; animation: logoHexFade 0.6s ease-out 0.3s forwards; }
-        .logo-hex-outline { stroke-dasharray: 410; stroke-dashoffset: 410; animation: logoHexStroke 0.6s ease-out 0.3s forwards; }
-        .logo-book-reveal { opacity: 0; transform-origin: 110px 110px; animation: logoBookReveal 0.4s ease-out 0.85s forwards; }
+        .logo-pearl-sweep {
+          animation: logoPearlSweep 4s ease-in-out infinite;
+        }
 
         @media (prefers-reduced-motion: reduce) {
-          .logo-hex-group, .logo-book-reveal { animation: none; opacity: 1; }
-          .logo-hex-outline { animation: none; stroke-dashoffset: 0; }
-          .logo-book-reveal { transform: scale(1); }
+          .logo-float { animation: none; }
+          .logo-pearl-sweep { animation: none; opacity: 0; }
         }
       `}</style>
 
@@ -202,45 +200,76 @@ void main(){gl_Position=position;}`
             />
 
             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-white px-4">
-                <div className="mb-6 fade-in-down flex items-center gap-4">
-                    <svg viewBox="0 0 220 220" aria-hidden="true" className="w-16 h-16 md:w-20 md:h-20 flex-shrink-0">
-                        <defs>
-                            <linearGradient id="heroLogoHex" x1="0" y1="0" x2="1" y2="1">
-                                <stop offset="0" stopColor="#5eead4" />
-                                <stop offset="0.55" stopColor="#2dd4bf" />
-                                <stop offset="1" stopColor="#0891b2" />
-                            </linearGradient>
-                        </defs>
-                        <g className="logo-hex-group">
+                <div className="mb-1 fade-in-down logo-float">
+                    <svg viewBox="0 0 220 220" aria-hidden="true" className="w-44 h-44 md:w-64 md:h-64">
+                            <defs>
+                                <linearGradient id="heroHexBase" x1="0" y1="0" x2="1" y2="1">
+                                    <stop offset="0" stopColor="#5eead4" />
+                                    <stop offset="0.55" stopColor="#2dd4bf" />
+                                    <stop offset="1" stopColor="#0891b2" />
+                                </linearGradient>
+                                <radialGradient id="heroSpecular" cx="0.32" cy="0.22" r="0.4">
+                                    <stop offset="0" stopColor="#ffffff" stopOpacity="0.8" />
+                                    <stop offset="1" stopColor="#ffffff" stopOpacity="0" />
+                                </radialGradient>
+                                <linearGradient id="heroSweepGrad" x1="0" y1="0" x2="1" y2="0">
+                                    <stop offset="0" stopColor="#ffffff" stopOpacity="0" />
+                                    <stop offset="0.5" stopColor="#ffffff" stopOpacity="0.6" />
+                                    <stop offset="1" stopColor="#ffffff" stopOpacity="0" />
+                                </linearGradient>
+                                <clipPath id="heroHexClip">
+                                    <polygon points="110,38 168,73 168,143 110,178 52,143 52,73" />
+                                </clipPath>
+                            </defs>
+
+                            <ellipse cx="110" cy="198" rx="55" ry="9" fill="#000000" opacity="0.3" />
+
                             <polygon
-                                className="logo-hex-outline"
                                 points="110,38 168,73 168,143 110,178 52,143 52,73"
-                                fill="url(#heroLogoHex)"
+                                fill="url(#heroHexBase)"
                                 stroke="#083f3a"
                                 strokeWidth="3"
                             />
-                            <g stroke="#0a4a43" strokeWidth="1.5" opacity="0.5" fill="none">
+                            <g stroke="#0a4a43" strokeWidth="1.5" opacity="0.45" fill="none">
                                 <polygon points="110,38 139,55.5 139,90.5 110,108 81,90.5 81,55.5" />
                                 <polygon points="110,108 139,125.5 139,160.5 110,178 81,160.5 81,125.5" />
                             </g>
-                        </g>
-                        <g className="logo-book-reveal">
-                            <path d="M110,90 L82,96 L82,140 L110,132 Z" fill="#04302c" />
-                            <path d="M110,90 L138,96 L138,140 L110,132 Z" fill="#0a4a43" />
-                            <line x1="110" y1="90" x2="110" y2="132" stroke="#04302c" strokeWidth="2" />
-                        </g>
+
+                            <g transform="translate(110,75) scale(0.6)">
+                                <path d="M0,-21 L-28,-15 L-28,29 L0,21 Z" fill="#04302c" />
+                                <path d="M0,-21 L28,-15 L28,29 L0,21 Z" fill="#0a4a43" />
+                                <line x1="0" y1="-21" x2="0" y2="21" stroke="#04302c" strokeWidth="3" />
+                            </g>
+
+                            <text
+                                x="110"
+                                y="127"
+                                textAnchor="middle"
+                                fontFamily="var(--font-orbitron), sans-serif"
+                                fontSize="13"
+                                fontWeight="800"
+                                fill="#04302c"
+                            >
+                                TheClassHive
+                            </text>
+
+                            <g clipPath="url(#heroHexClip)">
+                                <g transform="rotate(-20 110 108)">
+                                    <rect className="logo-pearl-sweep" x="-45" y="-60" width="90" height="280" fill="url(#heroSweepGrad)" />
+                                </g>
+                                <polygon points="110,38 168,73 168,143 110,178 52,143 52,73" fill="url(#heroSpecular)" />
+                            </g>
                     </svg>
-                    <span className="text-3xl md:text-5xl font-bold text-white tracking-tight">TheClassHive</span>
                 </div>
 
                 {trustBadge && (
-                    <div className="mb-8 fade-in-down delay-200 px-5 py-2.5 bg-teal-500/10 backdrop-blur-md border border-teal-300/30 rounded-full text-sm">
+                    <div className="mb-3 fade-in-down delay-200 px-5 py-2.5 bg-teal-500/10 backdrop-blur-md border border-teal-300/30 rounded-full text-sm">
                         <span className="text-teal-100">{trustBadge.text}</span>
                     </div>
                 )}
 
-                <div className="text-center space-y-6 max-w-5xl mx-auto">
-                    <div className="space-y-2">
+                <div className="text-center space-y-3 max-w-5xl mx-auto">
+                    <div className="space-y-1">
                         <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold bg-gradient-to-r from-teal-300 via-cyan-400 to-teal-200 bg-clip-text text-transparent fade-in-up delay-400">
                             {headline.line1}
                         </h1>
@@ -256,7 +285,7 @@ void main(){gl_Position=position;}`
                     </div>
 
                     {buttons && (
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center mt-10 fade-in-up delay-800">
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center mt-4 fade-in-up delay-800">
                             {buttons.primary?.href && (
                                 <Link
                                     href={buttons.primary.href}
