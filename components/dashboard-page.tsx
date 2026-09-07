@@ -379,9 +379,11 @@ export function DashboardPage() {
   }, [])
 
   useEffect(() => {
-    async function loadDashboardData() {
+    let cancelled = false
+
+    async function loadDashboardData(isRetry = false) {
       const user = await getCurrentUser()
-      if (!user) return
+      if (!user || cancelled) return
 
       try {
         const [lessonsData, tasksData, resourcesData, studentsData] = await Promise.all([
@@ -390,16 +392,26 @@ export function DashboardPage() {
           getResourcesForUser(user.id),
           getStudentsForUser(user.id),
         ])
+        if (cancelled) return
         setDashboardLessons(lessonsData)
         setTasks(tasksData)
         setResourcesCount(resourcesData.length)
         setStudentsCount(studentsData.length)
       } catch (error) {
         console.error("Error loading dashboard data:", error)
+        // A freshly-issued JWT can briefly trail the API's clock (seen right after
+        // sign-in, surfaces as PostgREST's "JWT issued at future"). One retry after
+        // a short delay clears it without the visitor needing to refresh manually.
+        if (!isRetry && !cancelled) {
+          setTimeout(() => loadDashboardData(true), 1500)
+        }
       }
     }
 
     loadDashboardData()
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   // Calendar helpers
