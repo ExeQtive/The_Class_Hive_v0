@@ -20,8 +20,8 @@ export default function Home() {
             href: "/request-early-access",
           },
           secondary: {
-            text: "See the Demo",
-            href: "/dashboard",
+            text: "Login as Demo",
+            isDemo: true,
           },
         }}
       />

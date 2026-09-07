@@ -1,7 +1,9 @@
 "use client"
 
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabase'
 
 interface HeroProps {
     trustBadge?: {
@@ -21,6 +23,7 @@ interface HeroProps {
         secondary?: {
             text: string
             href?: string
+            isDemo?: boolean
         }
     }
     className?: string
@@ -85,6 +88,29 @@ export default function Hero({
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const animationFrameRef = useRef<number>()
     const startTimeRef = useRef<number>(Date.now())
+    const router = useRouter()
+    const [isDemoLoading, setIsDemoLoading] = useState(false)
+    const [demoError, setDemoError] = useState<string | null>(null)
+
+    const handleDemoLogin = async () => {
+        setIsDemoLoading(true)
+        setDemoError(null)
+        try {
+            const { error } = await supabase.auth.signInWithPassword({
+                email: process.env.NEXT_PUBLIC_DEMO_EMAIL!,
+                password: process.env.NEXT_PUBLIC_DEMO_PASSWORD!,
+            })
+            if (error) {
+                setDemoError("Could not start the demo. Please try again.")
+                return
+            }
+            router.push('/dashboard')
+        } catch {
+            setDemoError("Could not start the demo. Please try again.")
+        } finally {
+            setIsDemoLoading(false)
+        }
+    }
 
     useEffect(() => {
         const canvas = canvasRef.current
@@ -207,6 +233,10 @@ void main(){gl_Position=position;}`
                         </p>
                     </div>
 
+                    {demoError && (
+                        <p className="text-sm text-red-300 mt-4">{demoError}</p>
+                    )}
+
                     {buttons && (
                         <div className="flex flex-col sm:flex-row gap-4 justify-center mt-10 fade-in-up delay-800">
                             {buttons.primary?.href && (
@@ -217,13 +247,24 @@ void main(){gl_Position=position;}`
                                     {buttons.primary.text}
                                 </Link>
                             )}
-                            {buttons.secondary?.href && (
-                                <Link
-                                    href={buttons.secondary.href}
-                                    className="px-8 py-4 bg-teal-500/10 hover:bg-teal-500/20 border border-teal-300/30 hover:border-teal-300/50 text-teal-100 rounded-full font-semibold text-lg transition-all duration-300 hover:scale-105 backdrop-blur-sm"
+                            {buttons.secondary?.isDemo ? (
+                                <button
+                                    type="button"
+                                    onClick={handleDemoLogin}
+                                    disabled={isDemoLoading}
+                                    className="px-8 py-4 bg-teal-500/10 hover:bg-teal-500/20 border border-teal-300/30 hover:border-teal-300/50 text-teal-100 rounded-full font-semibold text-lg transition-all duration-300 hover:scale-105 backdrop-blur-sm disabled:opacity-60 disabled:hover:scale-100"
                                 >
-                                    {buttons.secondary.text}
-                                </Link>
+                                    {isDemoLoading ? "Loading demo..." : buttons.secondary.text}
+                                </button>
+                            ) : (
+                                buttons.secondary?.href && (
+                                    <Link
+                                        href={buttons.secondary.href}
+                                        className="px-8 py-4 bg-teal-500/10 hover:bg-teal-500/20 border border-teal-300/30 hover:border-teal-300/50 text-teal-100 rounded-full font-semibold text-lg transition-all duration-300 hover:scale-105 backdrop-blur-sm"
+                                    >
+                                        {buttons.secondary.text}
+                                    </Link>
+                                )
                             )}
                         </div>
                     )}

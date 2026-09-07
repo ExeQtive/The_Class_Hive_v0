@@ -63,6 +63,11 @@ import { StudentManagementPage } from "@/components/student-management/student-m
 import { ParentCommunicationPage } from "@/components/parent-communication/parent-communication-page"
 import { SmallGroupsPage } from "@/components/small-groups/small-groups-page"
 import { AIAssistantPage } from "@/components/ai-assistant/ai-assistant-page"
+import { getCurrentUser } from "@/lib/supabase"
+import { getLessonsForUser, type Lesson } from "@/lib/lessons"
+import { getTasksForUser, type Task } from "@/lib/tasks"
+import { getResourcesForUser } from "@/lib/resources"
+import { getStudentsForUser } from "@/lib/students"
 
 // Sidebar Item Component
 function SidebarItem({ icon, title, isActive, isCollapsed, isChildItem = false, onClick, comingSoon = false }: { icon: React.ReactNode; title: string; isActive?: boolean; isCollapsed?: boolean; isChildItem?: boolean; onClick?: () => void; comingSoon?: boolean }) {
@@ -178,36 +183,8 @@ export function DashboardPage() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date())
   const [showTasksInCalendar, setShowTasksInCalendar] = useState(true)
 
-  // Task management state
-  const [tasks, setTasks] = useState([
-    {
-      id: "task-1",
-      title: "Grade Math Quizzes",
-      description: "Grade the 5th grade math quizzes from Monday's assessment.",
-      dueDate: format(new Date(new Date().setDate(new Date().getDate() + 3)), "yyyy-MM-dd"),
-      priority: "high",
-      status: "todo",
-      category: "grading",
-    },
-    {
-      id: "task-2",
-      title: "Prepare Science Lesson",
-      description: "Create lesson plan for the states of matter unit.",
-      dueDate: format(new Date(new Date().setDate(new Date().getDate() + 1)), "yyyy-MM-dd"),
-      priority: "medium",
-      status: "in-progress",
-      category: "lesson-planning",
-    },
-    {
-      id: "task-3",
-      title: "Update Student Records",
-      description: "Update attendance and grades in the school system.",
-      dueDate: format(new Date(new Date().setDate(new Date().getDate() + 4)), "yyyy-MM-dd"),
-      priority: "low",
-      status: "todo",
-      category: "administrative",
-    },
-  ])
+  // Task management state — loaded from Supabase in the effect below
+  const [tasks, setTasks] = useState<Task[]>([])
   const [taskView, setTaskView] = useState("list")
   const [searchQuery, setSearchQuery] = useState("")
   const [priorityFilter, setPriorityFilter] = useState("all")
@@ -391,9 +368,38 @@ export function DashboardPage() {
   const [isAILoading, setIsAILoading] = useState(false)
   const [activeAITab, setActiveAITab] = useState("chat")
 
+  // Live dashboard data — populated from Supabase once the user is known
+  const [dashboardLessons, setDashboardLessons] = useState<Lesson[]>([])
+  const [studentsCount, setStudentsCount] = useState(0)
+  const [resourcesCount, setResourcesCount] = useState(0)
+
   // Prevent hydration errors by only rendering after mount
   useEffect(() => {
     setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    async function loadDashboardData() {
+      const user = await getCurrentUser()
+      if (!user) return
+
+      try {
+        const [lessonsData, tasksData, resourcesData, studentsData] = await Promise.all([
+          getLessonsForUser(user.id),
+          getTasksForUser(user.id),
+          getResourcesForUser(user.id),
+          getStudentsForUser(user.id),
+        ])
+        setDashboardLessons(lessonsData)
+        setTasks(tasksData)
+        setResourcesCount(resourcesData.length)
+        setStudentsCount(studentsData.length)
+      } catch (error) {
+        console.error("Error loading dashboard data:", error)
+      }
+    }
+
+    loadDashboardData()
   }, [])
 
   // Calendar helpers
@@ -784,25 +790,31 @@ export function DashboardPage() {
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                     <DashboardCard
                       title="Upcoming Lessons"
-                      value="3"
+                      value={String(
+                        dashboardLessons.filter((lesson) => {
+                          if (!lesson.date) return false
+                          const lessonDate = new Date(lesson.date)
+                          return lessonDate >= startDate && lessonDate <= endDate
+                        }).length,
+                      )}
                       description="Lessons scheduled this week"
                       icon={<Calendar className="h-5 w-5 text-teal-500" />}
                     />
                     <DashboardCard
                       title="Active Students"
-                      value="24"
+                      value={String(studentsCount)}
                       description="Students in your classes"
                       icon={<Users className="h-5 w-5 text-pink-500" />}
                     />
                     <DashboardCard
                       title="Pending Tasks"
-                      value="7"
+                      value={String(tasks.filter((task) => task.status !== "completed").length)}
                       description="Tasks to complete"
                       icon={<ClipboardList className="h-5 w-5 text-amber-500" />}
                     />
                     <DashboardCard
                       title="Resources"
-                      value="18"
+                      value={String(resourcesCount)}
                       description="Available teaching materials"
                       icon={<FolderOpen className="h-5 w-5 text-cyan-500" />}
                     />
@@ -822,45 +834,49 @@ export function DashboardPage() {
                         </CardHeader>
                         <CardContent>
                           <div className="space-y-2">
-                            <div className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0">
-                              <div className="flex items-center space-x-4">
-                                <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                                <div>
-                                  <p className="text-sm font-medium">Grade Math Quizzes</p>
-                                  <div className="flex items-center text-xs text-muted-foreground">
-                                    <Clock className="h-3 w-3 mr-1" />
-                                    Due Today
-                                  </div>
-                                </div>
-                              </div>
-                              <Badge variant="destructive">High</Badge>
-                            </div>
-                            <div className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0">
-                              <div className="flex items-center space-x-4">
-                                <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
-                                <div>
-                                  <p className="text-sm font-medium">Prepare Science Lesson</p>
-                                  <div className="flex items-center text-xs text-muted-foreground">
-                                    <Clock className="h-3 w-3 mr-1" />
-                                    Due Tomorrow
-                                  </div>
-                                </div>
-                              </div>
-                              <Badge>Medium</Badge>
-                            </div>
-                            <div className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0">
-                              <div className="flex items-center space-x-4">
-                                <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                                <div>
-                                  <p className="text-sm font-medium">Update Student Records</p>
-                                  <div className="flex items-center text-xs text-muted-foreground">
-                                    <Clock className="h-3 w-3 mr-1" />
-                                    Due May 16
-                                  </div>
-                                </div>
-                              </div>
-                              <Badge variant="outline">Low</Badge>
-                            </div>
+                            {tasks.length === 0 ? (
+                              <p className="text-sm text-muted-foreground">No tasks yet.</p>
+                            ) : (
+                              tasks
+                                .filter((task) => task.status !== "completed")
+                                .slice(0, 5)
+                                .map((task) => {
+                                  const dotColor =
+                                    task.priority === "high"
+                                      ? "bg-red-500"
+                                      : task.priority === "medium"
+                                        ? "bg-yellow-500"
+                                        : "bg-green-500"
+                                  const badgeVariant =
+                                    task.priority === "high"
+                                      ? "destructive"
+                                      : task.priority === "low"
+                                        ? "outline"
+                                        : "default"
+                                  return (
+                                    <div
+                                      key={task.id}
+                                      className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0"
+                                    >
+                                      <div className="flex items-center space-x-4">
+                                        <div className={cn("w-2 h-2 rounded-full", dotColor)}></div>
+                                        <div>
+                                          <p className="text-sm font-medium">{task.title}</p>
+                                          <div className="flex items-center text-xs text-muted-foreground">
+                                            <Clock className="h-3 w-3 mr-1" />
+                                            {task.dueDate ? `Due ${format(new Date(task.dueDate), "MMM d")}` : "No due date"}
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <Badge variant={badgeVariant as any}>
+                                        {task.priority
+                                          ? task.priority.charAt(0).toUpperCase() + task.priority.slice(1)
+                                          : "Normal"}
+                                      </Badge>
+                                    </div>
+                                  )
+                                })
+                            )}
                           </div>
                         </CardContent>
                       </Card>
@@ -930,36 +946,31 @@ export function DashboardPage() {
                         </CardHeader>
                         <CardContent>
                           <div className="space-y-2">
-                            <div className="flex items-center justify-between p-3 border rounded-lg dark:border-gray-800">
-                              <div className="flex items-center">
-                                <BookOpen className="h-5 w-5 text-primary mr-3" />
-                                <div>
-                                  <p className="font-medium">Fractions Introduction</p>
-                                  <p className="text-sm text-muted-foreground">Math • 4th Grade</p>
+                            {dashboardLessons.length === 0 ? (
+                              <p className="text-sm text-muted-foreground">No lessons yet.</p>
+                            ) : (
+                              dashboardLessons.slice(0, 5).map((lesson) => (
+                                <div
+                                  key={lesson.id}
+                                  className="flex items-center justify-between p-3 border rounded-lg dark:border-gray-800"
+                                >
+                                  <div className="flex items-center">
+                                    <BookOpen className="h-5 w-5 text-primary mr-3" />
+                                    <div>
+                                      <p className="font-medium">{lesson.title}</p>
+                                      <p className="text-sm text-muted-foreground">
+                                        {[lesson.subject, lesson.grade ? `Grade ${lesson.grade}` : null]
+                                          .filter(Boolean)
+                                          .join(" • ")}
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <span className="text-xs text-muted-foreground">
+                                    {lesson.date ? format(new Date(lesson.date), "MMM d") : ""}
+                                  </span>
                                 </div>
-                              </div>
-                              <span className="text-xs text-muted-foreground">May 10</span>
-                            </div>
-                            <div className="flex items-center justify-between p-3 border rounded-lg dark:border-gray-800">
-                              <div className="flex items-center">
-                                <BookOpen className="h-5 w-5 text-primary mr-3" />
-                                <div>
-                                  <p className="font-medium">States of Matter</p>
-                                  <p className="text-sm text-muted-foreground">Science • 4th Grade</p>
-                                </div>
-                              </div>
-                              <span className="text-xs text-muted-foreground">May 8</span>
-                            </div>
-                            <div className="flex items-center justify-between p-3 border rounded-lg dark:border-gray-800">
-                              <div className="flex items-center">
-                                <BookOpen className="h-5 w-5 text-primary mr-3" />
-                                <div>
-                                  <p className="font-medium">Poetry Analysis</p>
-                                  <p className="text-sm text-muted-foreground">Language Arts • 4th Grade</p>
-                                </div>
-                              </div>
-                              <span className="text-xs text-muted-foreground">May 5</span>
-                            </div>
+                              ))
+                            )}
                           </div>
                         </CardContent>
                       </Card>
