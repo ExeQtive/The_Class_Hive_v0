@@ -97,6 +97,15 @@ function SidebarItem({ icon, title, isActive, isCollapsed, isChildItem = false, 
   )
 }
 
+// Parses a bare "YYYY-MM-DD" date (as stored in Postgres `date` columns) as a
+// local calendar date. `new Date("YYYY-MM-DD")` parses it as UTC midnight,
+// which rolls back to the previous day once formatted in any timezone behind
+// UTC — this avoids that off-by-one.
+function parseLocalDate(dateString: string): Date {
+  const [year, month, day] = dateString.split("-").map(Number)
+  return new Date(year, month - 1, day)
+}
+
 // Sidebar Section Component
 function SidebarSection({ title, isCollapsed, children }: { title: string; isCollapsed?: boolean; children: React.ReactNode }) {
   return (
@@ -812,7 +821,7 @@ export function DashboardPage() {
                       value={String(
                         dashboardLessons.filter((lesson) => {
                           if (!lesson.date) return false
-                          const lessonDate = new Date(lesson.date)
+                          const lessonDate = parseLocalDate(lesson.date)
                           return lessonDate >= startDate && lessonDate <= endDate
                         }).length,
                       )}
@@ -883,7 +892,7 @@ export function DashboardPage() {
                                           <p className="text-sm font-medium">{task.title}</p>
                                           <div className="flex items-center text-xs text-muted-foreground">
                                             <Clock className="h-3 w-3 mr-1" />
-                                            {task.dueDate ? `Due ${format(new Date(task.dueDate), "MMM d")}` : "No due date"}
+                                            {task.dueDate ? `Due ${format(parseLocalDate(task.dueDate), "MMM d")}` : "No due date"}
                                           </div>
                                         </div>
                                       </div>
@@ -985,7 +994,7 @@ export function DashboardPage() {
                                     </div>
                                   </div>
                                   <span className="text-xs text-muted-foreground">
-                                    {lesson.date ? format(new Date(lesson.date), "MMM d") : ""}
+                                    {lesson.date ? format(parseLocalDate(lesson.date), "MMM d") : ""}
                                   </span>
                                 </div>
                               ))
