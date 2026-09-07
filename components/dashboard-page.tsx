@@ -787,8 +787,15 @@ export function DashboardPage() {
                   <span>Settings</span>
                 </DropdownMenuItem>
                 <div className="h-px bg-border my-2"></div>
-                <DropdownMenuItem className="rounded-lg cursor-pointer flex items-center p-2 gap-x-2 text-sm">
-                  <span>Logout</span>
+                <DropdownMenuItem asChild className="rounded-lg p-0">
+                  <form action="/logout" method="POST" className="w-full">
+                    <button
+                      type="submit"
+                      className="w-full cursor-pointer flex items-center p-2 gap-x-2 text-sm text-left"
+                    >
+                      <span>Logout</span>
+                    </button>
+                  </form>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
