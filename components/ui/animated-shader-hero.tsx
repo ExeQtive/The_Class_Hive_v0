@@ -6,7 +6,6 @@ import Link from 'next/link'
 interface HeroProps {
     trustBadge?: {
         text: string
-        icons?: string[]
     }
     headline: {
         line1: string
@@ -172,6 +171,28 @@ void main(){gl_Position=position;}`
         .delay-400 { animation-delay: 0.4s; }
         .delay-600 { animation-delay: 0.6s; }
         .delay-800 { animation-delay: 0.8s; }
+
+        @keyframes logoHexFade {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes logoHexStroke {
+          from { stroke-dashoffset: 410; }
+          to { stroke-dashoffset: 0; }
+        }
+        @keyframes logoBookReveal {
+          from { opacity: 0; transform: scale(0.85); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        .logo-hex-group { opacity: 0; animation: logoHexFade 0.6s ease-out 0.3s forwards; }
+        .logo-hex-outline { stroke-dasharray: 410; stroke-dashoffset: 410; animation: logoHexStroke 0.6s ease-out 0.3s forwards; }
+        .logo-book-reveal { opacity: 0; transform-origin: 110px 110px; animation: logoBookReveal 0.4s ease-out 0.85s forwards; }
+
+        @media (prefers-reduced-motion: reduce) {
+          .logo-hex-group, .logo-book-reveal { animation: none; opacity: 1; }
+          .logo-hex-outline { animation: none; stroke-dashoffset: 0; }
+          .logo-book-reveal { transform: scale(1); }
+        }
       `}</style>
 
             <canvas
@@ -181,20 +202,46 @@ void main(){gl_Position=position;}`
             />
 
             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-white px-4">
+                <div className="mb-6 fade-in-down flex items-center gap-4">
+                    <svg viewBox="0 0 220 220" aria-hidden="true" className="w-16 h-16 md:w-20 md:h-20 flex-shrink-0">
+                        <defs>
+                            <linearGradient id="heroLogoHex" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0" stopColor="#5eead4" />
+                                <stop offset="0.55" stopColor="#2dd4bf" />
+                                <stop offset="1" stopColor="#0891b2" />
+                            </linearGradient>
+                        </defs>
+                        <g className="logo-hex-group">
+                            <polygon
+                                className="logo-hex-outline"
+                                points="110,38 168,73 168,143 110,178 52,143 52,73"
+                                fill="url(#heroLogoHex)"
+                                stroke="#083f3a"
+                                strokeWidth="3"
+                            />
+                            <g stroke="#0a4a43" strokeWidth="1.5" opacity="0.5" fill="none">
+                                <polygon points="110,38 139,55.5 139,90.5 110,108 81,90.5 81,55.5" />
+                                <polygon points="110,108 139,125.5 139,160.5 110,178 81,160.5 81,125.5" />
+                            </g>
+                        </g>
+                        <g className="logo-book-reveal">
+                            <path d="M110,90 L82,96 L82,140 L110,132 Z" fill="#04302c" />
+                            <path d="M110,90 L138,96 L138,140 L110,132 Z" fill="#0a4a43" />
+                            <line x1="110" y1="90" x2="110" y2="132" stroke="#04302c" strokeWidth="2" />
+                        </g>
+                    </svg>
+                    <span className="text-3xl md:text-5xl font-bold text-white tracking-tight">TheClassHive</span>
+                </div>
+
                 {trustBadge && (
-                    <div className="mb-8 fade-in-down">
-                        <div className="flex items-center gap-2 px-6 py-3 bg-teal-500/10 backdrop-blur-md border border-teal-300/30 rounded-full text-sm">
-                            {trustBadge.icons?.map((icon, i) => (
-                                <span key={i}>{icon}</span>
-                            ))}
-                            <span className="text-teal-100">{trustBadge.text}</span>
-                        </div>
+                    <div className="mb-8 fade-in-down delay-200 px-5 py-2.5 bg-teal-500/10 backdrop-blur-md border border-teal-300/30 rounded-full text-sm">
+                        <span className="text-teal-100">{trustBadge.text}</span>
                     </div>
                 )}
 
                 <div className="text-center space-y-6 max-w-5xl mx-auto">
                     <div className="space-y-2">
-                        <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold bg-gradient-to-r from-teal-300 via-cyan-400 to-teal-200 bg-clip-text text-transparent fade-in-up delay-200">
+                        <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold bg-gradient-to-r from-teal-300 via-cyan-400 to-teal-200 bg-clip-text text-transparent fade-in-up delay-400">
                             {headline.line1}
                         </h1>
                         <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold bg-gradient-to-r from-cyan-300 via-teal-400 to-cyan-200 bg-clip-text text-transparent fade-in-up delay-400">

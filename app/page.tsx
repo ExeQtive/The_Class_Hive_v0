@@ -7,7 +7,6 @@ export default function Home() {
       <Hero
         trustBadge={{
           text: "Built for K-12 educators",
-          icons: ["✨"],
         }}
         headline={{
           line1: "One Workspace.",

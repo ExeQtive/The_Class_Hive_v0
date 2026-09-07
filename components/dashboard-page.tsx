@@ -15,7 +15,6 @@ import {
   ChevronDown,
   ClipboardList,
   FolderOpen,
-  GraduationCap,
   LayoutDashboard,
   MessageSquare,
   Settings,
@@ -104,6 +103,26 @@ function SidebarItem({ icon, title, isActive, isCollapsed, isChildItem = false, 
 function parseLocalDate(dateString: string): Date {
   const [year, month, day] = dateString.split("-").map(Number)
   return new Date(year, month - 1, day)
+}
+
+// The brand mark (hexagon + open book), reversed for use on the teal/cyan
+// gradient sidebar badge — same shape as the marketing site's hero logo,
+// recolored so it reads against a colored background instead of black.
+// Static here (no entrance animation): unlike the hero, this is persistent
+// app chrome seen on every page, so a replaying reveal would be distracting.
+function HiveBookMark({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 220 220" aria-hidden="true" className={className}>
+      <polygon points="110,38 168,73 168,143 110,178 52,143 52,73" fill="#ffffff" />
+      <g stroke="#0d9488" strokeWidth="2" opacity="0.35" fill="none">
+        <polygon points="110,38 139,55.5 139,90.5 110,108 81,90.5 81,55.5" />
+        <polygon points="110,108 139,125.5 139,160.5 110,178 81,160.5 81,125.5" />
+      </g>
+      <path d="M110,90 L82,96 L82,140 L110,132 Z" fill="#0f766e" />
+      <path d="M110,90 L138,96 L138,140 L110,132 Z" fill="#0e7490" />
+      <line x1="110" y1="90" x2="110" y2="132" stroke="#134e4a" strokeWidth="2" />
+    </svg>
+  )
 }
 
 // Sidebar Section Component
@@ -505,11 +524,11 @@ export function DashboardPage() {
             <div className={cn("transition-all duration-300", isCollapsed ? "w-10 h-10" : "w-full")}>
               {isCollapsed ? (
                 <div className="w-10 h-10 rounded-full bg-gradient-to-r from-teal-500 to-cyan-500 dark:from-teal-600 dark:to-cyan-600 flex items-center justify-center text-white">
-                  <GraduationCap className="h-5 w-5 icon-bounce" />
+                  <HiveBookMark className="h-6 w-6" />
                 </div>
               ) : (
                 <div className="flex items-center gap-x-2 bg-gradient-to-r from-teal-500 to-cyan-500 dark:from-teal-600 dark:to-cyan-600 text-white p-3 rounded-xl">
-                  <GraduationCap className="h-6 w-6 icon-bounce" />
+                  <HiveBookMark className="h-7 w-7 flex-shrink-0" />
                   <span className="text-xl font-bold">TheClassHive</span>
                 </div>
               )}
